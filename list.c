@@ -15,9 +15,18 @@ struct MY_LIST
 };
 
 
+int isElementInArray(int array[], int size, int element) {
+    for (int i = 0; i < size; i++) {
+        if (array[i] == element) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // Helper function that print all array in a list.
 void print_list(List list) {
-    int* array = list.array;
+    int* array = list.array; 
     int length = list.length;
     for (int i = 0; i < length; i++) {
         printf("%d  ", array[i]);
@@ -27,12 +36,20 @@ void print_list(List list) {
 // Function that generate a list consist with a size 50 random array.
 List generate_random_list () {
     List list;
+    int size = 0;
+    int random_number;
     list.length = RANDOM_ARR_SIZE;
     srand((unsigned)time(NULL));
     int* array = (int*) malloc(list.length * sizeof(int));
     for (size_t i = 0; i < list.length; i++)
     {
-        array[i] = rand() % SIZE;
+        random_number = rand() % SIZE;
+        if (!isElementInArray(array, size, random_number)) {
+            array[i] = random_number;
+            size++;
+        } else{
+            i--;
+        }
     }
     list.array = array;
     return list;
@@ -84,9 +101,6 @@ List SSTF(List sequence) {
                 min_index = j;
             }
         }
-        if (abs_diff(current, array[min_index]) > list.longest_delay) {
-            list.longest_delay = abs_diff(current, array[min_index]);
-        }
         list.count_tracks += abs_diff(current, array[min_index]);
         visited[min_index] = 1;
         order[i] = array[min_index];
@@ -94,11 +108,28 @@ List SSTF(List sequence) {
     }
     list.array = order;
 
+    for (int i = 0; i < length; i++) {
+        for (int j = 0; j < length; j++)
+        {
+            if (array[i] == order[j] && j > i)
+            {   
+                if ((j - i) > list.longest_delay) {
+                    list.longest_delay = j - i;
+                }
+            } else {
+                continue;
+            } 
+        }
+    }
+
     // Return the target list
     return list;
 }
 
 List SCAN(List sequence) {
+    // Get the array passed in
+    int* fcfs = sequence.array;
+
     // Get the length of passed in array
     int length = sequence.length;
 
@@ -141,7 +172,7 @@ List SCAN(List sequence) {
             }
         }
     }
-
+    
     // Index for sequence array
     int index = 0;
 
@@ -160,9 +191,6 @@ List SCAN(List sequence) {
     for (int i = index; i < length; i++) {
         curr_track = array[i];
         order[order_index] = array[i];
-        if (abs_diff(header, curr_track) > list.longest_delay) {
-            list.longest_delay = abs_diff(header, curr_track);
-        }
         list.count_tracks += abs_diff(header, curr_track);
         header = curr_track;
         order_index++;
@@ -172,12 +200,23 @@ List SCAN(List sequence) {
     for (int i = index - 1; i >= 0; i--) {
         curr_track = array[i];
         order[order_index] = array[i];
-        if (abs_diff(header, curr_track) > list.longest_delay) {
-            list.longest_delay = abs_diff(header, curr_track);
-        }
         list.count_tracks += abs_diff(header, curr_track);
         header = curr_track;
         order_index++;
+    }
+
+    for (int i = 0; i < length; i++) {
+        for (int j = 0; j < length; j++)
+        {
+            if (fcfs[i] == order[j] && j > i)
+            {   
+                if ((j - i) > list.longest_delay) {
+                    list.longest_delay = j - i;
+                }
+            } else {
+                continue;
+            } 
+        }
     }
 
     list.array = order;
@@ -211,13 +250,13 @@ double count_average_delay(List FCFS, List Another_Algorighm) {
         for (int j = 0; j < length_another; j++)
         {
             if (fcfs[i] == another[j] && !visited[j] && j > i)
-            {
+            {   
                 visited[j] = 1;
                 delay_count++;
                 delay_length += (j - i);
             } else {
                 continue;
-            }
+            } 
         }
     }
     if (delay_count != 0) {
@@ -230,7 +269,6 @@ double count_average_delay(List FCFS, List Another_Algorighm) {
 
 
 int main(int argc, char *argv[]) {
-    // int requrest[]= {45, 20, 35, 10, 50, 5, 60};
     List list;
     List sstf;
     List scan;
