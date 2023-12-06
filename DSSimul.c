@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #define SIZE 200;
 #define RANDOM_ARR_SIZE 50;
@@ -297,13 +298,43 @@ int main(int argc, char *argv[]) {
         printf("Average delay of SSTF is: %f \n", count_average_delay(list, sstf));
         printf("Average delay of SSTF is: %f \n", count_average_delay(list, scan));
     } else {
-        int request[argc - 1];
-        for (size_t i = 0; i < argc; i++)
+        char* raw = argv[1];
+        char* temp = malloc(strlen(raw));
+        strcpy(temp, raw);
+        temp = strtok(temp, ",");
+        int size = 0;
+        while (temp != NULL){
+            int element = atoi(temp);
+            if(element < 0 || element > 199){
+                printf("please name the track number within range [0,199]");
+                exit(0);
+            }
+            size ++;
+            temp = strtok(NULL, ",");
+        }
+        if(size < 3) {
+            printf("please list at least 3 tracks");
+            exit(0);
+        }
+        char* splitTemp = malloc(strlen(raw));
+        splitTemp = strcpy(splitTemp, raw);
+        splitTemp = strtok(splitTemp, ",");
+
+        int request[size];
+        for (int i = 0; i < size; i++)
         {
-            request[i - 1] = atoi(argv[i]);
+            int item = atoi(splitTemp);
+            for(int j = 0; j<i; j++){
+                if(request[j] == item){
+                    printf("you cannot use duplicate track number");
+                    exit(0);
+                }
+            }
+            request[i] = item;
+            splitTemp = strtok(NULL, ",");
         }
         list.array = request;
-        list.length = argc - 1;
+        list.length = size;
         printf("The original request list of track numbers is: \n");
         print_list(list);
         printf("\n---------------------\n");
