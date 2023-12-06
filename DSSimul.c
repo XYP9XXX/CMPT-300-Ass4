@@ -158,7 +158,6 @@ List SCAN(List sequence) {
 
     // Create the order array
     int* order = (int*) malloc(length * sizeof(int));
-    int min, min_index;
     for (int i = 0; i < length; i++) {
         visited[i] = 0;
     }
@@ -173,7 +172,13 @@ List SCAN(List sequence) {
             }
         }
     }
-    
+
+    if (header == array[length - 1]){
+        list.count_tracks = header - array[0];
+    }else{
+        list.count_tracks = header + array[length-1];
+    }
+
     // Index for sequence array
     int index = 0;
 
@@ -189,19 +194,19 @@ List SCAN(List sequence) {
     }
 
     // Start traversing the tracks in the direction from small to large
-    for (int i = index; i < length; i++) {
+    for (int i = index; i >=0; i--) {
         curr_track = array[i];
         order[order_index] = array[i];
-        list.count_tracks += abs_diff(header, curr_track);
+//        list.count_tracks += abs_diff(header, curr_track);
         header = curr_track;
         order_index++;
     }
 
     // When reach the end of track, go back.
-    for (int i = index - 1; i >= 0; i--) {
+    for (int i = index + 1; i < length; i++) {
         curr_track = array[i];
         order[order_index] = array[i];
-        list.count_tracks += abs_diff(header, curr_track);
+//        list.count_tracks += abs_diff(header, curr_track);
         header = curr_track;
         order_index++;
     }
@@ -296,7 +301,7 @@ int main(int argc, char *argv[]) {
         printf("\n---------------------\n");
 
         printf("Average delay of SSTF is: %f \n", count_average_delay(list, sstf));
-        printf("Average delay of SSTF is: %f \n", count_average_delay(list, scan));
+        printf("Average delay of SCAN is: %f \n", count_average_delay(list, scan));
     } else {
         char* raw = argv[1];
         char* temp = malloc(strlen(raw));
@@ -356,7 +361,7 @@ int main(int argc, char *argv[]) {
         printf("\n---------------------\n");
 
         printf("Average delay of SSTF is: %f \n", count_average_delay(list, sstf));
-        printf("Average delay of SSTF is: %f \n", count_average_delay(list, scan));
+        printf("Average delay of SCAN is: %f \n", count_average_delay(list, scan));
     }
     return 0;
 }
